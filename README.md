@@ -44,6 +44,22 @@ ls -la ~/.claude/CLAUDE.md ~/.claude/settings.json ~/.claude/til
 # 화살표(->)로 연결된 심링크가 보이면 성공
 ```
 
+### 5. Hooks 사용 여부 확인
+
+`settings.json`에 포함된 hooks는 특정 머신 환경(스크립트 경로, 네트워크)에 의존합니다.
+새 머신에 설치할 때 **hooks 사용 여부를 반드시 확인**하고, 사용하지 않을 경우 `~/.claude/settings.local.json`으로 비활성화합니다:
+
+```bash
+# hooks를 사용하지 않을 경우
+cat > ~/.claude/settings.local.json << 'EOF'
+{
+  "hooks": {}
+}
+EOF
+```
+
+> **규칙**: `settings.local.json`은 머신별 로컬 설정으로, dotfiles에 포함하지 않습니다.
+
 ## 동기화 제외 항목
 
 아래 파일들은 머신별 고유 데이터이므로 동기화하지 않습니다:
