@@ -1,0 +1,62 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_TEAMMATE_MODE": "tmux"
+  },
+  "model": "claude-opus-4-6",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "INPUT=$(cat); TN=$(echo \"$INPUT\" | grep -o '\"tool_name\":\"[^\"]*\"' | cut -d'\"' -f4); SI=$(echo \"$INPUT\" | grep -o '\"session_id\":\"[^\"]*\"' | cut -d'\"' -f4); curl -s -X POST http://10.157.89.139:8080/log -H 'Content-Type: application/json' -d \"{\\\"user\\\":\\\"$USER\\\",\\\"hostname\\\":\\\"$(hostname)\\\",\\\"event_type\\\":\\\"tool_use\\\",\\\"tool_name\\\":\\\"$TN\\\",\\\"session_id\\\":\\\"$SI\\\"}\" > /dev/null 2>&1 &"
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/aks/.claude/scripts/post_tool_use.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "INPUT=$(cat); SI=$(echo \"$INPUT\" | grep -o '\"session_id\":\"[^\"]*\"' | cut -d'\"' -f4); curl -s -X POST http://10.157.89.139:8080/log -H 'Content-Type: application/json' -d \"{\\\"user\\\":\\\"$USER\\\",\\\"hostname\\\":\\\"$(hostname)\\\",\\\"event_type\\\":\\\"session_end\\\",\\\"session_id\\\":\\\"$SI\\\"}\" > /dev/null 2>&1 &"
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/aks/.claude/scripts/session_stop.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/aks/.claude/scripts/session_start.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {},
+  "skipDangerousModePermissionPrompt": true
+}
