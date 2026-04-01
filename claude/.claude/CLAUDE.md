@@ -119,54 +119,19 @@ story-{epic-name}-{p1|m1}-{story-name}.{상태}.md
 3. **Phase 완료 시**: Epic에 구현 결과 업데이트 (완료일, 실제 구현 내용, 원안과 달라진 점)
 4. **전체 완료 시**: Epic `.in-progress` → `.done`
 
-## 기존 파일의 Epic/Story 분류 및 리네이밍
+## 기존 파일의 Epic/Story 계층구조
 
-기존 작업 파일(마일스톤/Phase 테이블 포함)을 Epic/Story 규칙에 따라 재분류:
+기존 작업 문서들도 Epic/Story 계층으로 정리:
 
-### 분류 기준
-
-**Epic으로 분류:**
-- Milestone 또는 Phase 테이블을 최상위 단계에 가진 문서
+**Epic (상위 문서):**
 - 독립적인 프로젝트/이니셔티브
 - 상위 문서가 없는 자체 완결 작업
+- Milestone 또는 Phase를 최상위 단계에 가짐
 
-**Story로 분류:**
-- "상위 문서" 필드가 명시된 파일
-- 다른 Epic 문서의 Milestone/Phase에 포함되는 하위 작업
+**Story (하위 문서):**
+- "상위 문서" 필드로 Epic을 역참조
+- Epic의 Milestone/Phase 하위에 포함되는 작업
 - 특정 Epic의 구성 요소
-
-### 리네이밍 전략
-
-1. **각 파일의 상위 문서 확인**
-   - 파일 상단의 "상위 문서", "상위 Plan" 등 역참조 링크 확인
-   - 명시되지 않은 경우 파일 내용 분석 (마일스톤 구조, 작업 단계)
-
-2. **상위 Epic 매핑 및 Epic 파일 생성**
-   - 상위 Epic이 명시된 경우 → 그 Epic을 `epic-{name}.done.md` 형태로 생성/리네임
-   - 상위 Epic이 없는 경우 → 파일 자체를 Epic으로 분류
-
-3. **하위 Story 리네이밍**
-   - 상위 Epic이 있으면: `story-{epic-name}-{story-name}.{상태}.md`
-   - Epic이 여러 Story를 포함하면: `story-{epic-name}-m{n}-{story-name}.{상태}.md` (Milestone 번호 포함)
-
-### 예시
-
-**Before (기존):**
-```
-tasks/
-├── lsw-2026-privacy-access-control.done.md      (상위: Gap 분석)
-├── lsw-2026-privacy-session-timeout.done.md     (상위: Gap 분석)
-└── lsw-2026-infra-migration-plan.done.md        (독립)
-```
-
-**After (변경):**
-```
-tasks/
-├── epic-lsw-privacy-checklist.done.md           (Epic 새 생성 또는 리네임)
-│   ├── story-lsw-privacy-checklist-m1-access-control.done.md
-│   └── story-lsw-privacy-checklist-m2-session-timeout.done.md
-└── epic-lsw-infra-migration.done.md             (독립 Epic)
-```
 
 ## 금지 사항
 
