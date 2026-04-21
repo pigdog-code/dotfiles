@@ -63,20 +63,37 @@
 ## 계층 구조
 
 ```
-Epic (전체 프로젝트)
-└── Phase (구현 단계 — 순서/의존성 기반 그룹)
-    └── Task (개별 작업 항목)
+Initiative (프로젝트/이니셔티브 — 여러 Epic을 묶는 상위 관리 단위)
+└── Epic (독립적 기능 단위)
+    └── Phase (구현 단계 — 순서/의존성 기반 그룹)
+        └── Task (개별 작업 항목)
 ```
 
-| 개념      | 질문                         | 예시                                   |
-|-----------|------------------------------|----------------------------------------|
-| **Epic**  | "무엇을 만드는가?"           | LSW 2026 Proposal 구현                 |
-| **Phase** | "어떤 순서로 구현하는가?"     | P1→P2→P3/P4→P5→P6                    |
-| **Task**  | "구체적으로 무엇을 하는가?"   | 2.1 리전 설정, 2.2 JWT 모듈           |
+| 개념           | 질문                           | 예시                                         |
+|----------------|--------------------------------|----------------------------------------------|
+| **Initiative** | "어떤 목표/전략을 추진하는가?" | LSW 2026 업그레이드 (기획안 기반 전체 추진)  |
+| **Epic**       | "무엇을 만드는가?"             | Admin Upgrade / App Redesign                 |
+| **Phase**      | "어떤 순서로 구현하는가?"      | P1→P2→P3/P4→P5→P6                            |
+| **Task**       | "구체적으로 무엇을 하는가?"    | 2.1 리전 설정, 2.2 JWT 모듈                  |
 
+- **Initiative**: 여러 Epic을 묶는 상위 관리 단위. 대형 프로젝트나 개발 확정 이전 단계의 선행 작업 포괄 문서로 사용
+- **Epic**: 독립적으로 개발 가능한 기능 단위. Phase를 가짐
 - **Phase**: 구현 순서와 의존성을 기준으로 묶은 작업 그룹. 각 Phase는 Story 문서로 추적
 - **Task**: Phase 안의 개별 작업 항목. Story 문서 안의 Task 테이블로 추적
 - **Milestone**: 선택적 체크포인트. 필요 시 Epic 문서에 별도 테이블로 추가 (계층의 일부가 아님)
+
+### Initiative 사용 시점
+
+Initiative는 **선택적**입니다. 다음 상황에서 도입을 고려합니다:
+
+| 상황                                              | Initiative 필요 여부       |
+|---------------------------------------------------|----------------------------|
+| 단일 기능/이슈 작업                               | ❌ 불필요 (Epic 직접 생성) |
+| 독립적인 Epic이 여러 개 묶이는 대형 프로젝트      | ✅ 필요                    |
+| 개발 확정 전 선행 작업 (방향 전환 이력 보존 필요) | ✅ 필요                    |
+| 업무 툴(Jira 등)에서 Initiative로 관리 중인 작업  | ✅ 필요 (얼라인)           |
+
+Initiative는 **Epic 없이 단독 존재하지 않습니다** — 최소 1개 이상의 Epic을 가져야 합니다.
 
 ### Phase 분리 규칙
 
@@ -100,9 +117,16 @@ P2 (통합 Admin) — 볼륨이 크므로 분리
 
 ## 문서 유형
 
-**Epic (상위 계획 문서)**
-- Phase, Task를 정리한 상위 추적 문서
-- 포함 내용: 배경/목적, Phase 개요 (상태/의존성), 하위 Story 링크, 선택적 Milestone 테이블
+**Initiative (최상위 추적 문서 — 선택적)**
+- 여러 Epic을 묶는 상위 관리 단위
+- 포함 내용: 배경/목적, 추진 이력(History — 방향 전환/폐기된 시도 포함), Epic 목록 + 상태, 로드맵/타임라인, 미결 사항
+- 위치: 프로젝트 구조에 맞게 자유 배치 (`requirements/`, `docs/` 등)
+- 생성 시점: 대형 프로젝트 착수 시, 또는 개발 확정 이전 선행 작업을 포괄 관리할 필요가 생겼을 때
+- **Initiative는 Phase/Task를 직접 갖지 않음** — 하위 Epic이 Phase/Task를 가짐
+
+**Epic (기능 단위 계획 문서)**
+- Phase, Task를 정리한 추적 문서
+- 포함 내용: 상위 Initiative 역참조 링크(있을 경우), 배경/목적, Phase 개요 (상태/의존성), 하위 Story 링크, 선택적 Milestone 테이블
 - 위치: 프로젝트 구조에 맞게 자유 배치
 - 생성 시점: 작업 진행 전, 유저 confirm 후
 
@@ -115,6 +139,11 @@ P2 (통합 Admin) — 볼륨이 크므로 분리
 **적용 대상 외** — 단순 분석/조사, backlog, 인프라 가이드, 회의록 등은 접두어 없이 자유 네이밍
 
 ## 파일 네이밍 규칙
+
+**Initiative:**
+```
+initiative-{initiative-name}.{상태}.md
+```
 
 **Epic:**
 ```
@@ -133,34 +162,49 @@ story-{epic-name}-{p2.1}-{story-name}.{상태}.md
 
 예:
 
-| 케이스                      | 파일명                                                        |
-|-----------------------------|---------------------------------------------------------------|
-| Epic + Phase + 주제         | `story-lsw-2026-proposal-p2-unified-admin.in-progress.md`     |
-| Epic + Sub-phase + 주제     | `story-lsw-2026-proposal-p2.1-infra-auth.todo.md`            |
-| Phase + 주제 (Epic 생략)    | `story-p3-admin-productivity.todo.md`                         |
-| 주제만 (독립 Story)         | `story-fix-login-bug.todo.md`                                 |
+| 케이스                      | 파일명                                                      |
+|-----------------------------|-------------------------------------------------------------|
+| Initiative (상위)           | `initiative-lsw-2026-upgrade.in-progress.md`                |
+| Initiative 하위 Epic        | `epic-lsw-2026-admin-upgrade.in-progress.md`                |
+| 독립 Epic (Initiative 없음) | `epic-fix-login-bug.in-progress.md`                         |
+| Epic + Phase + 주제         | `story-lsw-2026-proposal-p2-unified-admin.in-progress.md`   |
+| Epic + Sub-phase + 주제     | `story-lsw-2026-proposal-p2.1-infra-auth.todo.md`           |
+| Phase + 주제 (Epic 생략)    | `story-p3-admin-productivity.todo.md`                       |
+| 주제만 (독립 Story)         | `story-fix-login-bug.todo.md`                               |
 
-**상태 suffix:** `.todo` → `.in-progress` → `.done`
+**상태 suffix:**
+- `.todo` → `.in-progress` → `.done` (정상 진행)
+- `.cancelled` (취소됨)
+- `.superseded` (다른 문서로 대체됨 — 예: Initiative 도입으로 기존 Epic이 재편된 경우)
+
 상태 변경 시 파일명을 리네임하고, 해당 파일을 참조하는 다른 문서의 링크도 함께 업데이트합니다.
 
 ## 작업 흐름
 
-1. **계획 수립**: 유저에게 Plan 문서 작성 여부를 물음 → 동의 시 폴더/파일명 확인 후 Epic 생성 → 하위 Story 생성 → 유저 confirm 후 작업 시작
+1. **계획 수립**: 유저에게 Plan 문서 작성 여부를 물음 → 동의 시 폴더/파일명 확인 후 (필요 시 Initiative 먼저 →) Epic 생성 → 하위 Story 생성 → 유저 confirm 후 작업 시작
 2. **작업 진행**: Story `.todo` → `.in-progress` → 구현 → `.done` / Epic의 Phase 상태 업데이트 (🔲 → ✅)
 3. **Phase 완료 시**: Epic에 구현 결과 기록 (실제 구현 내용, 원안과 달라진 점)
-4. **전체 완료 시**: Epic `.in-progress` → `.done`
+4. **Epic 완료 시**: Epic `.in-progress` → `.done` / Initiative의 Epic 상태 업데이트
+5. **전체 완료 시**: Initiative `.in-progress` → `.done` (Initiative 사용 시)
 
 ## 기존 파일의 계층 구조 판별
 
-**Epic (상위 문서):**
-- 독립적인 프로젝트/이니셔티브
-- 상위 문서가 없는 자체 완결 작업
+**Initiative (최상위 문서):**
+- 여러 Epic을 묶는 상위 관리 단위
+- Phase/Task를 직접 갖지 않고, 하위 Epic 목록만 나열
+- 배경/이력/로드맵 중심 문서
+- 파일명: `initiative-*.md`
+
+**Epic (기능 단위 문서):**
+- 독립적인 프로젝트/이니셔티브 (Initiative 없을 경우) 또는 Initiative 하위의 기능 단위
 - Phase를 가짐
+- 파일명: `epic-*.md`
 
 **Story (Phase 문서):**
 - "상위 문서" 필드로 Epic을 역참조
 - Epic의 특정 Phase (또는 Sub-phase)에 대응
 - Task 테이블과 타임로그를 포함
+- 파일명: `story-*.md`
 
 ## 금지 사항
 
