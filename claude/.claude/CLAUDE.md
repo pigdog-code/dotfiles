@@ -126,13 +126,13 @@ P2 (통합 Admin) — 볼륨이 크므로 분리
 
 **Epic (기능 단위 계획 문서)**
 - Phase, Task를 정리한 추적 문서
-- 포함 내용: 상위 Initiative 역참조 링크(있을 경우), 배경/목적, Phase 개요 (상태/의존성), 하위 Story 링크, 선택적 Milestone 테이블
+- 포함 내용: 상위 Initiative 역참조 링크(있을 경우), 배경/목적, **DoD (Definition of Done)**, Phase 개요 (상태/의존성), 하위 Story 링크, 선택적 Milestone 테이블
 - 위치: 프로젝트 구조에 맞게 자유 배치
 - 생성 시점: 작업 진행 전, 유저 confirm 후
 
 **Story (Phase별 작업 문서)**
 - Phase (또는 Sub-phase) 하나에 대응하는 구현 단위 문서
-- 포함 내용: 상위 Epic 역참조 링크, 배경/목적, Task 테이블, 타임로그, 완료 조건
+- 포함 내용: 상위 Epic 역참조 링크, 배경/목적, **DoD (Definition of Done)**, Task 테이블, 타임로그
 - 위치: `tasks/` 폴더
 - 생성 시점: Epic 작성 시 함께 생성하거나, Phase 착수 시 추가
 
@@ -181,11 +181,69 @@ story-{epic-name}-{p2.1}-{story-name}.{상태}.md
 
 ## 작업 흐름
 
-1. **계획 수립**: 유저에게 Plan 문서 작성 여부를 물음 → 동의 시 폴더/파일명 확인 후 (필요 시 Initiative 먼저 →) Epic 생성 → 하위 Story 생성 → 유저 confirm 후 작업 시작
-2. **작업 진행**: Story `.todo` → `.in-progress` → 구현 → `.done` / Epic의 Phase 상태 업데이트 (🔲 → ✅)
+1. **계획 수립**: 유저에게 Plan 문서 작성 여부를 물음 → 동의 시 폴더/파일명 확인 후 (필요 시 Initiative 먼저 →) Epic 생성 → 하위 Story 생성 → **각 Story/Epic의 DoD 초안 제안 + 유저 확정** → 작업 시작
+2. **작업 진행**: Story `.todo` → `.in-progress` → 구현 → **DoD 전체 충족** → `.done` (세부 조건은 "상태 전환 규칙" 참조) / Epic의 Phase 상태 업데이트 (🔲 → ✅)
 3. **Phase 완료 시**: Epic에 구현 결과 기록 (실제 구현 내용, 원안과 달라진 점)
-4. **Epic 완료 시**: Epic `.in-progress` → `.done` / Initiative의 Epic 상태 업데이트
+4. **Epic 완료 시**: **Epic DoD 전체 충족 (하위 Story 모두 종결 + 통합 검증)** → Epic `.in-progress` → `.done` / Initiative의 Epic 상태 업데이트
 5. **전체 완료 시**: Initiative `.in-progress` → `.done` (Initiative 사용 시)
+
+## 상태 전환 규칙 (필수 — 반드시 준수)
+
+> **⚠️ 핵심 원칙**: 모든 Story/Epic은 **Definition of Done (DoD)**을 문서에 명시하고,
+> DoD 전체 항목이 충족될 때만 `.done`으로 변경합니다.
+> DoD는 Story/Epic의 성격에 따라 달라지므로 **생성 시점에 개별 정의**합니다.
+
+### Definition of Done (DoD)
+
+Story/Epic 생성 시 **반드시 `## Definition of Done (DoD)` 섹션**을 포함합니다.
+
+**DoD 섹션 위치 (권장)**: Story/Epic 문서의 "목적" 섹션 직후, "Task" 또는 "Phase 개요" 섹션 전에 배치. 이렇게 하면 작업 착수 전에 종결 기준이 먼저 정렬됩니다.
+
+**DoD 작성 원칙**:
+- Story/Epic의 성격과 목적에 맞는 **체크리스트 형태**로 작성
+- 각 항목은 **객관적으로 판단 가능한 조건**이어야 함 (주관적 "잘 되면 완료" 금지)
+- 테스트 가능한 Story는 **단위/기능 테스트 PASS** 포함
+- 테스트 불가능한 Story (문서, 분석, 탐색)는 **유저 확인 완료** 항목 포함
+- 배포/릴리스가 목적인 Story는 **배포 완료 + 운영 검증** 포함
+
+**성격별 DoD 항목 예시**:
+
+| Story 성격        | 대표 DoD 항목 예시                                                                   |
+|------------------|-------------------------------------------------------------------------------------|
+| 개발/구현         | 코드 작성 완료 / 단위·기능 테스트 PASS / Stage 검증 PASS / master 반영 + 커밋 완료   |
+| 운영 릴리스        | 빌드 산출물 생성 / 운영 배포 완료 / 운영 환경 검증 PASS / 롤백 플랜 실행 가능 상태    |
+| 마이그레이션       | 마이그레이션 스크립트 실행 / 데이터 검증 PASS / 배포 완료                            |
+| 버그 수정         | 재현 테스트 PASS / 회귀 테스트 PASS / 수정 커밋 반영                                 |
+| 문서/분석         | 문서 작성 완료 / 유저 검토 완료 / 관련 문서 링크 업데이트                            |
+| UX/설계 Discovery | 전수 조사 완료 / 분류 결과 문서화 / 유저 확인 + 미결 사항 정리                       |
+| 인프라 셋업        | 설정 파일 반영 / 헬스 체크 PASS / 접근 권한 확인                                     |
+
+**Epic의 DoD**:
+- 하위 Story 모두 `.done` (또는 `.cancelled` / `.superseded`)
+- Epic 단위 통합 테스트 수행 + 결과 기록
+- Epic의 목표 지표 달성 여부 명시 (있을 경우)
+
+### Story/Epic 생성 플로우 (DoD 포함)
+
+1. **유저 요청 접수** → Story/Epic 작성 필요 판단
+2. **AI가 DoD 초안 제안**: Story 성격을 분석하여 DoD 항목들을 유저에게 먼저 제시 ("이 Story는 성격상 다음 항목들을 DoD로 제안드립니다 ...")
+3. **유저 확정**: DoD 항목 추가/수정/삭제 협의 → 확정
+4. **Story/Epic 파일 생성**: 확정된 DoD를 문서 내에 명시
+5. **작업 착수**: DoD를 기준으로 진행
+6. **`.done` 전환**: DoD 전체 항목 충족 확인 후 상태 변경
+
+### `.done` 전환 조건
+
+- **Story**: Story 문서의 **DoD 체크리스트 전체 항목 ✅** + 관련 검증 결과 Story 문서 내 기록
+- **Epic**: Epic 문서의 **DoD 체크리스트 전체 항목 ✅** + 하위 Story 모두 종결 + 통합 검증 결과 기록
+- **Initiative**: 하위 Epic 모두 종결 (Initiative는 자체 DoD 필수 아님 — 별도 정의 시에만 체크)
+
+### 예외 / 예외 처리
+
+- **DoD 미충족 상태에서 `.done` 요청** → 반드시 거부하고 미충족 항목 보고
+- **DoD 변경이 필요한 경우** → 유저 confirm 후 수정 (변경 이력은 타임로그에 기록)
+- **Cancel / Supersede** → DoD 요구 면제 (`.cancelled` / `.superseded` 처리)
+- **`.done` 이후 본문 편집 금지** (이력성 훼손). 타임로그 추가(예: 배포 이벤트)는 허용. 큰 변경 필요 시 새 Story 생성.
 
 ## 기존 파일의 계층 구조 판별
 
@@ -211,6 +269,9 @@ story-{epic-name}-{p2.1}-{story-name}.{상태}.md
 - ❌ 대화 컨텍스트에만 계획을 텍스트로 보여주고 파일을 생성하지 않는 행위
 - ❌ Plan 문서 없이 코드를 읽고 분석만 시작하는 행위 (분석도 Plan 문서 먼저)
 - ❌ 유저 confirm 없이 작업을 진행하는 행위
+- ❌ DoD 없이 Story/Epic 생성
+- ❌ DoD 초안을 유저에게 제안하지 않고 임의로 설정
+- ❌ DoD 미충족 상태에서 `.done` 처리
 
 # Git 커밋 메시지 규칙 (필수 — 반드시 준수)
 
